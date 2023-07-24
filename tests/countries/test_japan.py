@@ -21,11 +21,10 @@ class TestJapan(TestCase):
     def test_country_aliases(self):
         self.assertCountryAliases(Japan, JP, JPN)
 
-    def test_not_implemented(self):
-        with self.assertRaises(NotImplementedError):
-            Japan(years=1945)
-        with self.assertRaises(NotImplementedError):
-            Japan(years=2100)
+    def test_year_out_of_range(self):
+        for year in (1948, 2100):
+            with self.assertRaises(NotImplementedError):
+                Japan(years=year)
 
     def test_new_years_day(self):
         self.assertHoliday(f"{year}-01-01" for year in range(1949, 2051))

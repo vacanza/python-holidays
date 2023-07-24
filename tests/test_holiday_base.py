@@ -22,6 +22,7 @@ from dateutil.relativedelta import relativedelta as rd
 import holidays
 from holidays.calendars.gregorian import JAN, FEB, OCT, MON, TUE, SAT, SUN
 from holidays.constants import HOLIDAY_NAME_DELIMITER
+from holidays.exceptions import InvalidDateError
 
 
 class TestBasics(unittest.TestCase):
@@ -32,7 +33,7 @@ class TestBasics(unittest.TestCase):
         self.assertIn(date(2014, 1, 1), self.holidays)
         self.assertNotIn(date(2014, 1, 2), self.holidays)
 
-    def test_getitem(self):
+    def test_get_item(self):
         self.assertEqual(self.holidays[date(2014, 1, 1)], "New Year's Day")
         self.assertEqual(self.holidays.get(date(2014, 1, 1)), "New Year's Day")
         self.assertRaises(KeyError, lambda: self.holidays[date(2014, 1, 2)])
@@ -594,7 +595,7 @@ class TestBasics(unittest.TestCase):
 
     def test_get_named_lookup_invalid(self):
         us = holidays.UnitedStates(years=2020)
-        self.assertRaises(AttributeError, lambda: us.get_named("Holiday name", lookup="invalid"))
+        self.assertRaises(ValueError, lambda: us.get_named("Holiday name", lookup="invalid"))
 
 
 class TestArgs(unittest.TestCase):
@@ -757,19 +758,11 @@ class TestKeyTransforms(unittest.TestCase):
         self.assertNotIn("01/03/2014", self.holidays)
 
     def test_exception(self):
-        self.assertRaises((TypeError, ValueError), lambda: "abc" in self.holidays)
-        self.assertRaises(
-            (TypeError, ValueError),
-            lambda: self.holidays.get("abc123"),
-        )
-        self.assertRaises(TypeError, lambda: self.holidays.get({"123"}))
-        self.assertRaises(
-            (TypeError, ValueError),
-            self.holidays.__setitem__,
-            "abc",
-            "Test",
-        )
-        self.assertRaises((TypeError, ValueError), lambda: {} in self.holidays)
+        self.assertRaises(InvalidDateError, lambda: "abc" in self.holidays)
+        self.assertRaises(InvalidDateError, lambda: self.holidays.get("abc123"))
+        self.assertRaises(InvalidDateError, lambda: self.holidays.get({"123"}))
+        self.assertRaises(InvalidDateError, self.holidays.__setitem__, "abc", "Test")
+        self.assertRaises(InvalidDateError, lambda: {} in self.holidays)
 
 
 class TestCountryHolidayDeprecation(unittest.TestCase):
